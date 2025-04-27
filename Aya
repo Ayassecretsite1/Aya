@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>מקודד־מפענח סודי</title>
+  <style>
+    body { font-family: sans-serif; padding: 1em; }
+    textarea { width: 100%; height: 4em; margin-top: .5em; }
+  </style>
+</head>
+<body>
+  <h1>מקודד־מפענח לתלמידים</h1>
+  <input id="pin" type="text" placeholder="הכנס PIN (0905)" /><br/>
+  <textarea id="inText" placeholder="הקלד כאן…"></textarea><br/>
+  <button onclick="process(true)">הצפן</button>
+  <button onclick="process(false)">פענח</button><br/>
+  <textarea id="outText" placeholder="התוצאה תופיע כאן…" readonly></textarea>
+
+  <script>
+    const ALPH = [..."אבגדהוזחטיכלמנסעפצקרשת"];
+    function derive(pin) {
+      const rng = new Math.seedrandom(pin);
+      let perm = ALPH.slice();
+      for (let i = perm.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [perm[i], perm[j]] = [perm[j], perm[i]];
+      }
+      return perm;
+    }
+    function process(isEncode) {
+      const pin = document.getElementById("pin").value;
+      const table = derive(pin);
+      const map = isEncode
+        ? Object.fromEntries(ALPH.map((c,i) => [c, table[i]]))
+        : Object.fromEntries(table.map((c,i) => [c, ALPH[i]]));
+      const input = document.getElementById("inText").value;
+      document.getElementById("outText").value =
+        [...input].map(ch => map[ch] || ch).join("");
+    }
+  </script>
+  <!-- include seedrandom library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+</body>
+</html>
